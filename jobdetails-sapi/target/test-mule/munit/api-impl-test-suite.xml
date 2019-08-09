@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="api-impl-test-suite.xml" />
+	<munit:test name="api-impl-test-suite-delete:\jobStatus\(jobID):jobdetails-configTest" description="Test" doc:id="2ff74282-3049-45a7-80da-74d65edf0020" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="0eb1f2ee-eb37-4882-9d97-b62b865aa228" />
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to delete:\jobStatus\(jobID):jobdetails-config" doc:id="6ce0cc3e-c163-4d34-8c80-47573556b4a4" name="delete:\jobStatus\(jobID):jobdetails-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="408157a1-8ca2-4c2b-bf0e-29e5ee41788b" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="api-impl-test-suite-get:\jobStatus\(jobID):jobdetails-configTest" description="Test" doc:id="661bcd83-269c-4421-9460-ac45c936f753" >
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\jobStatus\(jobID):jobdetails-config" doc:id="b8661537-b538-4a5b-8370-38e8f3fc9dff" name="get:\jobStatus\(jobID):jobdetails-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="ee59f187-707f-46e4-9cfe-f2de2c7a6a8f" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="api-impl-test-suite-post:\jobStatus:application\json:jobdetails-configTest" description="Test" doc:id="9588b484-9d21-4a4c-a3e5-91f29f5fefe6" >
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\jobStatus:application\json:jobdetails-config" doc:id="dc9c3985-170e-4842-9400-afe54c11fcf4" name="post:\jobStatus:application\json:jobdetails-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="4dbb46b1-0dd0-4d74-8436-ec7b8e6661b9" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

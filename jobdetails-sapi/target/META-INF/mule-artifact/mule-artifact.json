@@ -1,0 +1,46 @@
+{
+  "configs": [
+    "implementation.xml",
+    "api-impl.xml",
+    "implementation-test-suite.xml",
+    "x-global-config.xml",
+    "api.xml",
+    "api-console.xml",
+    "api-impl-test-suite.xml",
+    "x-common-error.xml"
+  ],
+  "secureProperties": [
+    "db.password"
+  ],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:jobdetails-sapi:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.2.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedResources": [
+        "api/common.raml",
+        "api/dataType.raml",
+        "api/jobdetails.raml",
+        "api-console.xml",
+        "api-impl.xml",
+        "api.xml",
+        "config/common.yaml",
+        "config/local-configuration.yaml",
+        "config/secure-local-configuration.yaml",
+        "implementation.xml",
+        "log4j2.xml",
+        "x-common-error.xml",
+        "x-global-config.xml",
+        "log4j2-test.xml"
+      ],
+      "includeTestDependencies": "true",
+      "exportedPackages": []
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

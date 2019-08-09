@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+	<flow name="post-JobstatusFlow" doc:id="0af78b26-a216-4214-b307-60caf8d2490b" >
+		<db:insert doc:name="Insert" doc:id="041e4fb8-e68b-4e1a-a6c6-f674ff6c01d3" config-ref="Database_Config">
+			<error-mapping sourceType="DB:CONNECTIVITY" targetType="APP:DB_CONNECTION" />
+			<db:sql >insert into [dbo].[CPA_JOB_CTL_DETAIL] (job_id,job_rundate,job_status,comments)
+values(:job_id,:job_rundate,:job_status,:comments)</db:sql>
+			<db:input-parameters ><![CDATA[#[#[{
+'job_id':payload.jobid,
+'job_rundate':payload.jobrundate,
+'job_status':payload.jobstatus,
+'comments':payload.comments
+}]]]]></db:input-parameters>
+		</db:insert>
+		<json-logger:logger doc:name="Logger" doc:id="dd69345f-e515-4710-b8de-91178c8f2fb1" config-ref="JSON_Logger_Config" message="job status created"/>
+	</flow>
+	<flow name="getJobDetailsFlow" doc:id="2f2c79cc-b147-41d3-99da-0f58a4d522d8" >
+		<db:select doc:name="Select" doc:id="4d03b4ac-be67-4ace-8d88-a67bb810185d" config-ref="Database_Config">
+			<db:sql >select JOB_ID,JOB_RUNDATE,JOB_STATUS,COMMENTS from dbo.CPA_JOB_CTL_DETAIL
+where JOB_ID = :jobid order by JOB_RUNDATE desc</db:sql>
+			<db:input-parameters ><![CDATA[#[#[{
+'job_id':vars.jobID
+}]]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="912d62fe-465b-479c-8b35-ba2b0cd0867d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+	payload map ((payload01 , indexOfPayload01) -> {	
+			   "jobid": $.JOB_ID default "",
+               "rundate": $.JOB_RUNDATE default "",
+               "jobstatus": $.JOB_STATUS default "",
+               "comments": $.COMMENTS default ""
+	})
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	
+	<flow name="delteJobDetailsFlow" doc:id="85601a52-6755-436c-b64c-52cd808668c1" >
+		<db:delete doc:name="Delete" doc:id="58dc81b6-70c2-47e7-9703-eaf2eede5c1e" config-ref="Database_Config">
+			<db:sql >delete from dbo.CPA_JOB_CTL_DETAIL where JOB_ID= :job_ud</db:sql>
+			<db:input-parameters ><![CDATA[#[#[{
+'job_id':vars.jobID
+}]]]]></db:input-parameters>
+		</db:delete>
+		<json-logger:logger doc:name="Logger" doc:id="44ee0b61-1261-4924-b110-7f9033a4b16a" message="job_id records deleted"/>
+
+		
+	</flow>
+</mule>

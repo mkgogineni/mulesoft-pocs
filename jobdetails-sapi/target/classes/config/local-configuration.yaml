@@ -1,0 +1,10 @@
+env: "local"
+json.logger.application.name: "${project.artifactId}"
+json.logger.application.version: "${project.version}"
+mule:
+  env: "local"
+db:
+  host: "testserver"
+  port: "1433"
+  user: "testuser"
+  name: "employee_master_warehouse"

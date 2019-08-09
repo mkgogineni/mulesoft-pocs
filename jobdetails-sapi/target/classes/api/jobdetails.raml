@@ -1,0 +1,54 @@
+#%RAML 1.0
+title: JobDetails
+version: 1.0
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/8734e4ef-3d4d-4dbc-a29e-50432a72401c/api # baseUri: http://localhost:8081/api
+mediaType: application/json
+protocols: [ HTTP ]
+uses: 
+  myLib: common.raml
+  
+traits:
+  client-id-required:
+    headers:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+/jobStatus:
+  is: [client-id-required]
+  post:
+    body:
+      application/json:
+        type: myLib.batchDetail
+        description: save batch job status.
+        example:
+          {jobid: 'ABC',
+          rundate: '2019-07-29T14:06:02',
+          jobstatus: 'Success',
+          comments: 'File Processed'}
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+             {"message":"Successfully created"}
+  /{jobID}:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              type: myLib.batchDetail[]
+              example:
+                [{jobstatus: "Success",
+                jobid: "ABC",
+                comments: "PEI Processed",
+                rundate: "2019-07-29T14:06:02"}]
+                
+    delete:
+      
+                  
+
+              
+
+    

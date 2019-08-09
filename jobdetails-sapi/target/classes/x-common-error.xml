@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:cluster="http://www.mulesoft.org/schema/mule/ee/cluster"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+	
+		<error-handler name="GlobalExceptionMapping"
+		doc:id="64de7610-e69a-44c9-b1ae-bdcd536eb24d">
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="On Error Propagate" doc:id="add02435-5ff9-42f7-adc0-a3399eec6a3e" type="HTTP:BAD_REQUEST">
+			<json-logger:logger doc:name="Logger" doc:id="de47d893-1593-436e-a088-e8bffac8b7cd" config-ref="JSON_Logger_Config" priority="ERROR" tracePoint="EXCEPTION" message='#[error.cause.stackTrace as String default ""]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="d6aee63b-ce87-4283-9074-d9f375b93953">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "appName": p('app.name'),
+    "appVersion":  p('app.version'),
+    "correlationId": vars.correlationId ,
+    "timestamp": now(),
+    "errorDetail": {
+      "code" : 400,
+      "message" : "Bad Request",
+      "additionalInfo": ""
+  }
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="400" doc:name="Set Variable"
+				doc:id="11a98970-19e1-4db9-b907-1847ae6d4796" variableName="httpStatus" />
+
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="On Error Propagate" doc:id="9b9b94e6-d211-4297-8d5c-67db10c1decd" type="HTTP:NOT_FOUND">
+			<json-logger:logger doc:name="Logger" doc:id="ab059806-4d28-47fe-9242-05a034300565" config-ref="JSON_Logger_Config" priority="ERROR" tracePoint="EXCEPTION" message='#[error.cause.stackTrace as String default ""]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="aee41557-0d01-44c1-80be-357c43d7616b">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "appName": p('app.name'),
+    "appVersion":  p('app.version'),
+    "correlationId": vars.correlationId ,
+    "timestamp": now(),
+    "errorDetail": {
+      "code" : 404,
+      "message" : "Not Found",
+      "additionalInfo": ""
+  }
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="404" doc:name="Set Variable"
+				doc:id="5ca1c374-e8f0-4558-8b53-20c4b027e25e" variableName="httpStatus" />
+
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="On Error Propagate" doc:id="abd6a0ef-5e37-4320-be33-18caa7502a3d" type="HTTP:SERVICE_UNAVAILABLE">
+			<json-logger:logger doc:name="Logger" doc:id="57f2f38a-83f8-430d-88c6-98e624e7321a" config-ref="JSON_Logger_Config" priority="ERROR" tracePoint="EXCEPTION" message='#[error.cause.stackTrace as String default ""]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="97fa2c2d-8a6a-4c5e-a7f3-9e511b0cfd84">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "appName": p('app.name'),
+    "appVersion":  p('app.version'),
+    "correlationId": vars.correlationId ,
+    "timestamp": now(),
+    "errorDetail": {
+      "code" : 503,
+      "message" : "Resource Not Found",
+      "additionalInfo": ""
+  }
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="503" doc:name="Set Variable"
+				doc:id="e076400d-40d5-481f-b300-a1ca4df4c466" variableName="httpStatus" />
+
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="On Error Propagate" doc:id="400683ed-81fc-4afa-a707-de9c73b4740c" type="HTTP:TIMEOUT">
+			<json-logger:logger doc:name="Logger" doc:id="fdac2324-1087-42c0-b88d-9616f2c1f86a" config-ref="JSON_Logger_Config" priority="ERROR" tracePoint="EXCEPTION" message='#[error.cause.stackTrace as String default ""]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="f9efbc1b-42b4-4f55-87d1-bb09c724f667">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "appName": p('app.name'),
+    "appVersion":  p('app.version'),
+    "correlationId": vars.correlationId ,
+    "timestamp": now(),
+    "errorDetail": {
+      "code" : 408,
+      "message" : "Request Timeout",
+      "additionalInfo": ""
+  }
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="408" doc:name="Set Variable"
+				doc:id="2988be61-fb36-4bb0-9ff8-760659c1e295" variableName="httpStatus" />
+
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="On Error Propagate" doc:id="752a2ddc-3f9e-447d-8901-83e80d347d22">
+			<json-logger:logger doc:name="Logger" doc:id="d2c7c867-5cda-4338-a05e-d237b5fe10c1" config-ref="JSON_Logger_Config" priority="ERROR" tracePoint="EXCEPTION" message='#[error.cause.stackTrace as String default ""]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="a37691ff-6ead-46e8-b8b6-e518f2cfcf3f">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "appName": p('app.name'),
+    "appVersion":  p('app.version'),
+    "correlationId": vars.correlationId ,
+    "timestamp": now(),
+    "errorDetail": {
+      "code" : 500,
+      "message" : "Internal Server Error",
+      "additionalInfo": ""
+  }
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="500" doc:name="Set Variable"
+				doc:id="b8c97b3e-c03e-4c25-81cd-d976695e2499" variableName="httpStatus" />
+
+		</on-error-propagate>
+	</error-handler>
+	
+	
+	</mule>

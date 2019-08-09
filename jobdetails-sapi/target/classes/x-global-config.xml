@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	
+	<configuration doc:name="Configuration" doc:id="5c4894a2-dbaa-4a71-9743-9b9781b42cfe" defaultErrorHandler-ref="GlobalExceptionMapping" />
+		<global-property doc:name="Global Property: env" doc:id="6b82f6f8-98e8-4cf6-b8ac-db25971b5eea" name="mule.env" value="local" />
+		<global-property doc:name="Global Property :key" doc:id="c3e62ca0-1dcc-4beb-b039-4a7372749640" name="security.key" value="2121212121212122" />
+	    <secure-properties:config name="Secure_Properties_Config:Secure" doc:name="Secure Properties Config" doc:id="ea5bc0d0-113b-4980-897e-01c8ab9e1a1a" file="config/secure-${mule.env}-configuration.yaml" key="${security.key}" />
+	    <configuration-properties doc:name="Configuration properties: common" doc:id="dc837c72-090f-4893-9f54-78cd7d04e7af" file="config/common.yaml" />
+		<configuration-properties doc:name="Configuration properties: local" doc:id="0a4c9e28-f30f-428b-b8b8-f00bd5725b7e" file="config/${mule.env}-configuration.yaml" />
+	
+	<http:listener-config name="jobdetails-httpListenerConfig">
+    <http:listener-connection host="${api.http.host}" port="${api.http.port}" />
+    </http:listener-config>
+    <apikit:config name="jobdetails-config" raml="jobdetails.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<api-gateway:autodiscovery apiId="${api.id}" doc:name="API Autodiscovery" doc:id="8ead72fd-63bd-407f-b8c9-7c1406682a1c" flowRef="jobdetails-main" />
+		<db:config name="Database_Config" doc:name="Database Config" doc:id="aa9025f0-ece7-441f-a029-650217ace9ef" >
+		<db:mssql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${secure::db.password}" databaseName="${db.name}" />
+	</db:config>
+	<json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="5368f0ad-3bce-495e-bb5c-f3d9e6e82472" disabledFields="content" />
+	
+	
+	
+	
+</mule>

@@ -1,0 +1,11 @@
+{"minMuleVersion":"4.2.0",
+ "secureProperties": ["db.password"],
+ "configs" : [
+ 	"api.xml",
+ 	"api-console.xml",
+ 	"api-impl.xml",
+ 	"implementation.xml",
+ 	"x-global-config.xml",
+ 	"x-common-error.xml"
+ ]
+}

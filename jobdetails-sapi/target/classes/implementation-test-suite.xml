@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="implementation-test-suite.xml" />
+	<munit:test name="implementation-test-suite-post-JobstatusFlowTest" description="Test" doc:id="90059728-3a1b-407c-b60e-5c6816b3ebf3" >
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post-JobstatusFlow" doc:id="841955cd-8dab-41f0-b45c-7669c4f9ced2" name="post-JobstatusFlow"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="implementation-test-suite-getJobDetailsFlowTest" description="Test" doc:id="852ed653-23d4-48cf-b776-cbd62726185e" >
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to getJobDetailsFlow" doc:id="89cff36c-7356-48cb-ae10-5644a0b53bcc" name="getJobDetailsFlow"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="implementation-test-suite-delteJobDetailsFlowTest" description="Test" doc:id="888c31bf-c43d-4d01-acfc-e3047390d698" >
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to delteJobDetailsFlow" doc:id="66c7c60a-7832-45f0-8ff1-191e28e41c41" name="delteJobDetailsFlow"/>
+		</munit:execution>
+	</munit:test>
+
+
+</mule>
