@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	
+	
+	
+	<flow name="shared-logger" doc:id="c2e13a88-2a4a-4bca-ad3a-88145d3ee6f6" >
+		<ee:transform doc:name="Build Logging Elements" doc:id="9e080956-2f86-40b3-91be-1bf639ded45d" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="logEntryElement" ><![CDATA[%dw 2.0
+output application/json
+			
+var listSize = sizeOf((vars.sharedLogData default []))
+
+---
+if(listSize==0) 
+	{
+		"FlowStep": "0",
+		"tx-id": attributes.headers['xh-transaction-id'] default uuid(),
+		"tx-source":attributes.headers['xh-transaction-source'] default 'Experience API',
+		"tracedata": {
+					"message":payload
+					},
+		"status": "START"
+		
+	} else if(listSize>0 and vars.traceVariable.status !="END") {
+		
+			"FlowStep": listSize,
+			"tracer": {
+				"transport": vars.traceVariable.transport default "",
+				"tracedata": {
+					"message":payload
+					}
+					
+			}
+
+	}else{
+		
+		"FlowStep": listSize,
+			"tracer": {
+				"transport": vars.traceVariable.transport,
+				"tracedata": {
+					"message":payload
+					},
+		    "status":"END"		
+	}
+	}
+	
+
+
+	
+]]></ee:set-variable>
+			
+</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Add2ArrayList" doc:id="5f880add-cd3a-4a5f-bf6b-1dab4ae59847" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="sharedLogData" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.sharedLogData << logEntryElement default ""]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="84b038b7-33a3-4151-b05a-d31af6da98b4" >
+			<when expression='#[vars.traceVariable.status =="END"]'>
+				<ee:transform doc:name="CovertToJson" doc:id="5086fe00-3ba5-4bc9-a855-99a1a8beebb2">
+					<ee:message>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="logData1"><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-variable>
+						<ee:set-variable variableName="logJsonData" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.sharedLogData]]></ee:set-variable>
+					
+</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logging All log Entries" doc:id="acff9e47-6977-4b5e-bb56-f6f40a3c2c3d" message="#[vars.logJsonData]" />
+			</when>
+		</choice>
+	</flow>
+</mule>

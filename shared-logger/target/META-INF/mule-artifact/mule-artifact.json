@@ -1,0 +1,24 @@
+{
+  "configs": [
+    "shared-logger.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "company:shared-logger:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.2.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "log4j2.xml",
+        "shared-logger.xml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}
