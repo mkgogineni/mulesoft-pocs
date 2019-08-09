@@ -7,7 +7,7 @@ POC work with Mule Soft Concepts uisng Mule 4
      3. Used Secure Properties, JSON Logger
      4. API Discovery
      5. Munit test cases.
-# Shared-logger: Mule 4 implementation of sahred logging framework to be used by all mule Service in network
+# Shared-logger: Mule 4 implementation of a shared logging framework for all mule Services in network
      1. dependant flows has to initialize sharedLogData arraylist variable
      2. to log transport and status from dependant flows, a json data variable(traceVariable) should be initalized
           ex: traceVariable ={"transport":"MQ-PUT","status:END"}
