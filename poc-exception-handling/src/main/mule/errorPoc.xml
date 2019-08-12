@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+    <apikit:config name="errorPoc-config" raml="errorPoc.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="d5187ed5-8054-48ca-9df1-00830bf25182" basePath="/api" >
+		<http:request-connection host="localkost" port="8918" />
+	</http:request-config>
+	<flow name="errorPoc-main">
+        <http:listener config-ref="HTTP_Listener_config" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="errorPoc-config" />
+        <error-handler>
+        	<on-error ref="global_Propagate_Error_Handler"/>
+        </error-handler>
+        
+    </flow> 
+    <flow name="errorPoc-console">
+        <http:listener config-ref="HTTP_Listener_config" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="errorPoc-config" />
+    </flow>
+    <flow name="get:\error:errorPoc-config">
+		<try doc:name="Try" doc:id="9ccf9ca6-62da-4cc8-930a-d73eda06a5b9" >
+			<http:request method="GET" doc:name="Request" doc:id="6da38334-ca88-49dd-b0cd-3a295f824ae5" config-ref="HTTP_Request_configuration" path="/test">
+		</http:request>
+			<error-handler>
+				<on-error ref="global_Continue_Error_Handler"/>
+			</error-handler>
+		</try>
+		<logger level="INFO" message="Continue : #[payload]" />
+		<http:request method="GET" doc:name="Request" doc:id="affb8f9a-cb9c-4643-85ab-83b84d9dbd76" config-ref="HTTP_Request_configuration" path="/hello">
+			<error-mapping sourceType="HTTP:CONNECTIVITY" targetType="APP:NO_SERVICE" />
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="7817a123-6d4f-47c3-921f-e5fda5428eb2" message="after second"/>
+    </flow>
+</mule>

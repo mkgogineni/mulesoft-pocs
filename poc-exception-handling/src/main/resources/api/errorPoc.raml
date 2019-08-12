@@ -1,0 +1,16 @@
+#%RAML 1.0
+title: errorPoc API
+baseUri: http://localhost:8081
+version: v1
+
+mediaType:  application/json
+
+protocols: [ HTTP]
+
+/error:
+  get: 
+    responses: 
+      200:
+      404:
+
+      

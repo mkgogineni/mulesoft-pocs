@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	    
+		<!-- <error-handler name="global_Propagate_Error_Handler" doc:id="f4bccc1f-f03d-4b81-ab69-9e435bae34d2"> -->
+		
+		<!-- <error-handler name="global_Error_Handler" doc:id="bc876b58-0339-402f-bdef-ad9423b8f4cf"> -->
+		<on-error-continue enableNotifications="false" logException="false" name="global_Continue_Error_Handler" doc:id="cb23dede-6278-435a-ad6d-8f5879fc3e94" when="true">
+				<set-variable value="#[correlationId]" doc:name="Set Variable" doc:id="3268bbc9-27ea-453c-9e71-719b0e3c09ba" variableName="correlId"/>
+			<logger level="INFO" doc:name="Logger" doc:id="1060cf17-123c-41fd-85eb-f93c065d4a5c" message="error type identifier: #[error.errorType.identifier]"/>
+		<ee:transform doc:name="Transform Message" doc:id="1eca90d6-5bcb-4c32-84cf-fa58031bf304" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+import Mule
+output application/java
+---
+
+	Mule::p("CONTINUE." ++ error.errorType.namespace ++"." ++ error.errorType.identifier)
+]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+
+			<flow-ref name="error-continue-handlingSub_Flow" />
+		</on-error-continue>
+		
+		<on-error-propagate enableNotifications="false" logException="false" name="global_Propagate_Error_Handler" doc:id="2cd3d365-eb6e-4f90-a8c7-5240f04dc358" when="true">
+				<set-variable value="#[correlationId]" doc:name="Set Variable" doc:id="777e54c5-e2f7-4582-a508-ab79d9f0a315" variableName="correlId"/>
+			<ee:transform doc:name="Transform Message" doc:id="5fa70d05-2444-4529-b569-41c852142e01" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+import Mule
+output application/java
+---
+
+	Mule::p("PROPAGATE." ++ error.errorType.namespace ++"." ++ error.errorType.identifier)
+]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+
+			<flow-ref name="error-propagate-handlingSub_Flow" />
+		</on-error-propagate>
+	
+		
+	<sub-flow name="error-propagate-handlingSub_Flow" doc:id="d0f4df80-e3a2-4c2e-a5cd-a5f5b7dbd3e0" >
+	      <ee:transform doc:name="Transform Message" doc:id="6dda7792-7f6c-4cfc-8690-6161bf515bde">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+import Mule
+output application/json
+---
+{
+  "apiVersion": Mule::p('api.version'),
+  "applicationName": Mule::p('application.name'),
+  "timestamp": now(),
+  "correlationId": vars.correlId,
+  "errorDetail": {
+      "code" : vars.httpStatus,
+      "message" : Mule::p(vars.httpStatus),
+      "additionalInfo": error.cause.statckTrace default ""
+  	}
+ }
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	<logger message="#[payload]" level="INFO"/>	
+	</sub-flow>
+	
+<sub-flow name="error-continue-handlingSub_Flow" doc:id="35445a85-61b2-4cb0-83b9-137f19061b38" >
+	      <ee:transform doc:name="Transform Message" doc:id="b0408dde-28b7-41fa-821a-54faac0a9706">
+			<ee:message>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="onContinueError" ><![CDATA[%dw 2.0
+import Mule
+output application/json
+---
+{
+  "apiVersion": Mule::p('api.version'),
+  "applicationName": Mule::p('application.name'),
+  "timestamp": now(),
+  "correlationId": vars.correlId,
+  "errorDetail": {
+      "code" : vars.httpStatus default "",
+      "message" : Mule::p(vars.httpStatus) default "",
+      "additionalInfo": error.cause.statckTrace default ""
+  	}
+ }
+]]></ee:set-variable>
+			</ee:variables>
+		
+</ee:transform>
+	<logger message="#[vars.onContinueError]" level="INFO"/>	
+	</sub-flow>	
+	     
+</mule>
+
